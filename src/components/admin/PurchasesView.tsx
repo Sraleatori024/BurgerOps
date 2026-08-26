@@ -13,6 +13,8 @@ import {
   Package,
   TrendingUp,
   Search,
+  X,
+  Eye,
 } from 'lucide-react';
 
 export const PurchasesView: React.FC = () => {
@@ -20,6 +22,7 @@ export const PurchasesView: React.FC = () => {
   const [isNewPurchaseModalOpen, setIsNewPurchaseModalOpen] = useState(false);
   const [selectedPurchaseForDetails, setSelectedPurchaseForDetails] = useState<Purchase | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   const filteredPurchases = purchases.filter((p) => {
     const query = searchQuery.toLowerCase();
@@ -33,132 +36,217 @@ export const PurchasesView: React.FC = () => {
   const totalSpentPurchases = purchases.reduce((sum, p) => sum + p.totalValue, 0);
 
   return (
-    <div id="admin-purchases-root" className="space-y-6 pb-16">
+    <div id="admin-purchases-root" className="space-y-4 sm:space-y-6 pb-12 w-full max-w-full overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white font-['Outfit']">
-            Registro de Compras & Suprimentos
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white font-['Outfit'] truncate">
+            Registro de Compras
           </h1>
-          <p className="text-xs sm:text-sm text-gray-400 mt-1">
-            Entrada de mercadorias com atualização automática de estoque e recálculo de custo unitário.
+          <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">
+            Entrada de mercadorias, reposição de estoque e atualização de custos.
           </p>
         </div>
 
         <button
           id="register-purchase-btn"
           onClick={() => setIsNewPurchaseModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#F27D26] hover:bg-[#F27D26]/90 text-black font-bold text-xs sm:text-sm transition-colors shadow-md shadow-black/40"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg bg-[#F27D26] hover:bg-[#F27D26]/90 text-black font-bold text-xs sm:text-sm transition-colors shadow-sm shrink-0"
         >
           <Plus className="w-4 h-4 stroke-[3]" />
-          <span>Lançar Nova Compra (NF-e)</span>
+          <span>+ Lançar Nova Compra</span>
         </button>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-xl bg-[#141414] border border-white/10 shadow-lg">
-          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-            Total em Compras Lançadas
+      {/* KPI Cards - Compact Mobile */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
+        <div className="p-3.5 sm:p-5 rounded-xl bg-[#141414] border border-white/10 flex flex-col justify-between">
+          <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-wider font-mono truncate">
+            Total Lançado
           </span>
-          <p className="text-2xl font-black text-green-400 font-['Outfit'] mt-2">
+          <p className="text-lg sm:text-2xl font-black text-green-400 font-['Outfit'] mt-1 truncate">
             {formatBRL(totalSpentPurchases)}
           </p>
-          <p className="text-xs text-gray-400 mt-0.5">{purchases.length} notas processadas</p>
+          <p className="text-[10px] text-gray-500 mt-1 truncate">{purchases.length} notas processadas</p>
         </div>
 
-        <div className="p-5 rounded-xl bg-[#141414] border border-white/10 shadow-lg">
-          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-            Última Compra Realizada
+        <div className="p-3.5 sm:p-5 rounded-xl bg-[#141414] border border-white/10 flex flex-col justify-between">
+          <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-wider font-mono truncate">
+            Última Compra
           </span>
-          <p className="text-lg font-black text-white font-['Outfit'] mt-2 truncate">
-            {purchases[0]?.supplier || 'Nenhuma recente'}
+          <p className="text-base sm:text-xl font-bold text-white font-['Outfit'] mt-1 truncate">
+            {purchases[0]?.supplier || 'Nenhuma'}
           </p>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-[10px] text-gray-500 mt-1 truncate">
             {purchases[0]?.date ? new Date(purchases[0].date).toLocaleDateString('pt-BR') : '-'}
           </p>
         </div>
 
-        <div className="p-5 rounded-xl bg-[#141414] border border-white/10 shadow-lg">
-          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-            Impacto no Estoque
+        <div className="p-3.5 sm:p-5 rounded-xl bg-[#141414] border border-white/10 flex flex-col justify-between col-span-2 lg:col-span-1">
+          <span className="text-[9px] sm:text-[10px] font-bold text-[#F27D26] uppercase tracking-wider font-mono truncate">
+            Integração ao Estoque
           </span>
-          <p className="text-lg font-black text-[#F27D26] font-['Outfit'] mt-2">
-            Atualização 100% Automática
+          <p className="text-base sm:text-lg font-bold text-white font-['Outfit'] mt-1 truncate">
+            100% Automática
           </p>
-          <p className="text-xs text-gray-400 mt-0.5">Recalcula CMV e ficha técnica na hora</p>
+          <p className="text-[10px] text-gray-400 mt-1 truncate">Recalcula CMV na hora</p>
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="flex items-center justify-between gap-4 p-4 rounded-xl bg-[#141414] border border-white/10">
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+      {/* Search and view toggle */}
+      <div className="p-3 sm:p-4 rounded-xl bg-[#141414] border border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+        <div className="relative flex-1">
+          <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Buscar por fornecedor, NF ou insumo..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 rounded-lg bg-[#0A0A0A] border border-white/10 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-[#F27D26]"
+            className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#0A0A0A] border border-white/10 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-[#F27D26]"
           />
         </div>
-        <span className="text-xs text-gray-400 font-mono hidden sm:inline">
-          {filteredPurchases.length} compras encontradas
-        </span>
+
+        <div className="flex items-center justify-between sm:justify-end gap-2">
+          <span className="text-[11px] text-gray-500 font-mono">
+            {filteredPurchases.length} compras
+          </span>
+
+          <div className="flex items-center bg-[#0A0A0A] border border-white/10 rounded-lg p-0.5 shrink-0">
+            <button
+              onClick={() => setViewMode('cards')}
+              className={`px-2.5 py-1 rounded-md text-xs font-bold transition-colors ${
+                viewMode === 'cards' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Cards
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              className={`hidden md:block px-2.5 py-1 rounded-md text-xs font-bold transition-colors ${
+                viewMode === 'table' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Tabela
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Purchases List / Table */}
-      <div className="p-6 rounded-2xl bg-[#141414] border border-white/10 shadow-xl overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead>
-            <tr className="border-b border-white/10 text-gray-400 uppercase tracking-wider text-[10px] font-mono">
-              <th className="py-3 px-4">Data</th>
-              <th className="py-3 px-4">Fornecedor</th>
-              <th className="py-3 px-4">Nota Fiscal / Ref</th>
-              <th className="py-3 px-4">Itens Comprados</th>
-              <th className="py-3 px-4">Valor Total</th>
-              <th className="py-3 px-4 text-right">Detalhes</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5 text-gray-300">
-            {filteredPurchases.map((purchase) => (
-              <tr key={purchase.id} className="hover:bg-white/[0.02] transition-colors">
-                <td className="py-3.5 px-4 font-mono text-gray-300">
-                  {new Date(purchase.date).toLocaleDateString('pt-BR')}
-                </td>
-                <td className="py-3.5 px-4">
-                  <p className="font-bold text-white text-sm">{purchase.supplier}</p>
-                </td>
-                <td className="py-3.5 px-4 font-mono text-[#F27D26]">
-                  {purchase.invoiceNumber || 'S/N'}
-                </td>
-                <td className="py-3.5 px-4 max-w-sm truncate text-gray-300">
-                  {purchase.items.map((i) => `${i.quantity} ${i.unit} ${i.ingredientName}`).join(', ')}
-                </td>
-                <td className="py-3.5 px-4 font-mono font-bold text-green-400 text-sm">
-                  {formatBRL(purchase.totalValue)}
-                </td>
-                <td className="py-3.5 px-4 text-right">
+      {/* 1. Cards View (Mobile/Tablet/Desktop) */}
+      {viewMode === 'cards' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          {filteredPurchases.length === 0 ? (
+            <div className="col-span-full p-8 text-center bg-[#141414] border border-white/10 rounded-xl">
+              <ShoppingBag className="w-10 h-10 text-gray-600 mx-auto mb-2" />
+              <p className="text-sm font-bold text-gray-300">Nenhuma compra encontrada</p>
+              <p className="text-xs text-gray-500 mt-0.5">Lance uma nova compra para abastecer o estoque.</p>
+            </div>
+          ) : (
+            filteredPurchases.map((purchase) => (
+              <div
+                key={purchase.id}
+                className="p-3.5 sm:p-4 rounded-xl bg-[#141414] border border-white/10 flex flex-col justify-between gap-3 shadow-md hover:border-white/20 transition-all"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <span className="text-[10px] text-gray-400 font-mono block">
+                      {new Date(purchase.date).toLocaleDateString('pt-BR')}
+                    </span>
+                    <h4 className="text-sm sm:text-base font-bold text-white truncate mt-0.5">
+                      {purchase.supplier}
+                    </h4>
+                    {purchase.invoiceNumber && (
+                      <p className="text-[11px] text-[#F27D26] font-mono truncate">{purchase.invoiceNumber}</p>
+                    )}
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] uppercase font-bold text-gray-500 font-mono block">Total Pago</span>
+                    <p className="font-mono text-base font-bold text-green-400">
+                      {formatBRL(purchase.totalValue)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-lg bg-[#0A0A0A] border border-white/5 text-xs space-y-1">
+                  <span className="text-[10px] text-gray-500 font-mono uppercase block">Itens recebidos:</span>
+                  {purchase.items.map((item, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-gray-200">
+                      <span className="truncate">
+                        {item.quantity} {item.unit} • {item.ingredientName}
+                      </span>
+                      <span className="font-mono text-gray-400 text-[11px] shrink-0 ml-2">
+                        {formatBRL(item.totalCost)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[10px] text-green-400 font-semibold flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> Estoque Atualizado
+                  </span>
+
                   <button
                     onClick={() => setSelectedPurchaseForDetails(purchase)}
-                    className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 text-xs font-semibold transition-colors"
+                    className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 text-xs font-semibold flex items-center gap-1 transition-colors"
                   >
-                    Ver Itens
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>Detalhes</span>
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
 
-      {/* New Purchase Modal */}
+      {/* 2. Table View (Desktop) */}
+      {viewMode === 'table' && (
+        <div className="p-4 rounded-xl bg-[#141414] border border-white/10 shadow-xl overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-white/10 text-gray-400 uppercase text-[10px] font-mono">
+                <th className="py-2.5 px-3">Data</th>
+                <th className="py-2.5 px-3">Fornecedor</th>
+                <th className="py-2.5 px-3">NF</th>
+                <th className="py-2.5 px-3">Insumos</th>
+                <th className="py-2.5 px-3">Valor Total</th>
+                <th className="py-2.5 px-3 text-right">Ação</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5 text-gray-300">
+              {filteredPurchases.map((p) => (
+                <tr key={p.id} className="hover:bg-white/[0.02]">
+                  <td className="py-3 px-3 font-mono">{new Date(p.date).toLocaleDateString('pt-BR')}</td>
+                  <td className="py-3 px-3 font-bold text-white">{p.supplier}</td>
+                  <td className="py-3 px-3 font-mono text-[#F27D26]">{p.invoiceNumber || '-'}</td>
+                  <td className="py-3 px-3 max-w-xs truncate text-gray-400">
+                    {p.items.map((i) => `${i.quantity} ${i.unit} ${i.ingredientName}`).join(', ')}
+                  </td>
+                  <td className="py-3 px-3 font-mono font-bold text-green-400">{formatBRL(p.totalValue)}</td>
+                  <td className="py-3 px-3 text-right">
+                    <button
+                      onClick={() => setSelectedPurchaseForDetails(p)}
+                      className="p-1 rounded bg-white/5 text-gray-300 hover:text-white border border-white/10"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* New Purchase Modal (Bottom sheet mobile / centered desktop) */}
       {isNewPurchaseModalOpen && (
-        <NewPurchaseModal
+        <PurchaseFormModal
           ingredients={ingredients}
           onClose={() => setIsNewPurchaseModalOpen(false)}
-          onSave={(p) => {
-            addPurchase(p);
+          onSave={(purchaseData) => {
+            addPurchase(purchaseData);
             setIsNewPurchaseModalOpen(false);
           }}
         />
@@ -166,20 +254,61 @@ export const PurchasesView: React.FC = () => {
 
       {/* Purchase Details Modal */}
       {selectedPurchaseForDetails && (
-        <PurchaseDetailsModal
-          purchase={selectedPurchaseForDetails}
-          onClose={() => setSelectedPurchaseForDetails(null)}
-        />
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div onClick={() => setSelectedPurchaseForDetails(null)} className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
+          <div className="relative z-10 w-full max-w-lg bg-[#141414] border border-white/10 rounded-t-2xl sm:rounded-2xl p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+              <div>
+                <h3 className="text-base font-bold text-white font-['Outfit']">
+                  Compra: {selectedPurchaseForDetails.supplier}
+                </h3>
+                <p className="text-xs text-gray-400">
+                  Data: {new Date(selectedPurchaseForDetails.date).toLocaleDateString('pt-BR')}
+                </p>
+              </div>
+              <button onClick={() => setSelectedPurchaseForDetails(null)} className="p-1 text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-3 bg-[#0A0A0A] rounded-xl border border-white/5 space-y-2 text-xs">
+              <h5 className="font-bold text-white uppercase text-[10px] font-mono">Itens da Nota</h5>
+              {selectedPurchaseForDetails.items.map((it, idx) => (
+                <div key={idx} className="flex justify-between py-1 border-b border-white/5 last:border-0">
+                  <div>
+                    <p className="font-bold text-white">{it.ingredientName}</p>
+                    <p className="text-[10px] text-gray-400">
+                      {it.quantity} {it.unit} a {formatBRL(it.unitCost)}/{it.unit}
+                    </p>
+                  </div>
+                  <span className="font-mono font-bold text-green-400">{formatBRL(it.totalCost)}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-between items-center text-sm font-bold text-white pt-2 border-t border-white/10">
+              <span>Valor Total da Nota:</span>
+              <span className="text-green-400 text-base font-mono">{formatBRL(selectedPurchaseForDetails.totalValue)}</span>
+            </div>
+
+            <button
+              onClick={() => setSelectedPurchaseForDetails(null)}
+              className="w-full py-2.5 rounded-lg bg-[#F27D26] text-black font-bold text-xs"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
 };
 
-// Modal for registering a new purchase
-const NewPurchaseModal: React.FC<{
+// Purchase Form Modal
+const PurchaseFormModal: React.FC<{
   ingredients: Ingredient[];
   onClose: () => void;
-  onSave: (purchase: Omit<Purchase, 'id' | 'createdAt'>) => void;
+  onSave: (purchase: Omit<Purchase, 'id' | 'unitCostCalculated'>) => void;
 }> = ({ ingredients, onClose, onSave }) => {
   const [supplier, setSupplier] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -190,16 +319,12 @@ const NewPurchaseModal: React.FC<{
       ingredientName: ingredients[0]?.name || '',
       quantity: 10,
       unit: ingredients[0]?.unit || 'kg',
-      unitCost: ingredients[0]?.unitCost || 30,
-      totalCost: (ingredients[0]?.unitCost || 30) * 10,
+      unitCost: ingredients[0]?.unitCost || 25,
+      totalCost: (ingredients[0]?.unitCost || 25) * 10,
     },
   ]);
 
-  const handleItemChange = (
-    index: number,
-    field: keyof PurchaseItem,
-    value: any
-  ) => {
+  const handleItemChange = (index: number, field: keyof PurchaseItem, value: any) => {
     setItems((prev) => {
       const updated = [...prev];
       const item = { ...updated[index], [field]: value };
@@ -259,55 +384,56 @@ const NewPurchaseModal: React.FC<{
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="w-full max-w-2xl bg-[#141414] border border-white/10 rounded-2xl p-6 shadow-2xl space-y-6 my-6 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div onClick={onClose} className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
+      <div className="relative z-10 w-full max-w-2xl bg-[#141414] border border-white/10 rounded-t-2xl sm:rounded-2xl p-5 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-white/10">
           <div>
-            <h3 className="text-lg font-bold text-white font-['Outfit']">
-              Lançar Entrada de Mercadoria (Compra)
+            <h3 className="text-base font-bold text-white font-['Outfit']">
+              Lançar Entrada de Mercadoria
             </h3>
             <p className="text-xs text-gray-400">
               O estoque será abastecido e o custo unitário será atualizado.
             </p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1">
-            ✕
+          <button onClick={onClose} className="p-1 text-gray-400 hover:text-white">
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">Fornecedor</label>
+              <label className="text-gray-400 font-bold mb-1 block">Fornecedor</label>
               <input
                 type="text"
                 required
                 placeholder="Ex: Frigorífico Central"
                 value={supplier}
                 onChange={(e) => setSupplier(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-[#0A0A0A] border border-white/10 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-[#F27D26]"
+                className="w-full px-3 py-2 rounded-lg bg-[#0A0A0A] border border-white/10 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#F27D26]"
               />
             </div>
 
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">Data da Compra</label>
+              <label className="text-gray-400 font-bold mb-1 block">Data da Compra</label>
               <input
                 type="date"
                 required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-[#0A0A0A] border border-white/10 text-xs text-white focus:outline-none focus:border-[#F27D26]"
+                className="w-full px-3 py-2 rounded-lg bg-[#0A0A0A] border border-white/10 text-white focus:outline-none focus:border-[#F27D26]"
               />
             </div>
 
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">Nº da Nota Fiscal</label>
+              <label className="text-gray-400 font-bold mb-1 block">Nº da Nota Fiscal</label>
               <input
                 type="text"
                 placeholder="Ex: NF-e 49201"
                 value={invoiceNumber}
                 onChange={(e) => setInvoiceNumber(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-[#0A0A0A] border border-white/10 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-[#F27D26]"
+                className="w-full px-3 py-2 rounded-lg bg-[#0A0A0A] border border-white/10 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#F27D26]"
               />
             </div>
           </div>
@@ -315,7 +441,7 @@ const NewPurchaseModal: React.FC<{
           {/* Items Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-[#F27D26] uppercase tracking-wider">
+              <label className="text-xs font-bold text-[#F27D26] uppercase font-mono">
                 Itens Comprados
               </label>
               <button
@@ -327,17 +453,17 @@ const NewPurchaseModal: React.FC<{
               </button>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {items.map((item, index) => (
                 <div
                   key={index}
-                  className="p-3 rounded-xl bg-[#0A0A0A] border border-white/10 grid grid-cols-1 sm:grid-cols-12 gap-2 items-center text-xs"
+                  className="p-3 rounded-xl bg-[#0A0A0A] border border-white/10 flex flex-col sm:flex-row gap-2 items-stretch sm:items-center text-xs"
                 >
-                  <div className="sm:col-span-5">
+                  <div className="flex-1">
                     <select
                       value={item.ingredientId}
                       onChange={(e) => handleItemChange(index, 'ingredientId', e.target.value)}
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#141414] border border-white/10 text-xs text-white focus:outline-none focus:border-[#F27D26]"
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#141414] border border-white/10 text-white focus:outline-none focus:border-[#F27D26]"
                     >
                       {ingredients.map((ing) => (
                         <option key={ing.id} value={ing.id}>
@@ -347,134 +473,71 @@ const NewPurchaseModal: React.FC<{
                     </select>
                   </div>
 
-                  <div className="sm:col-span-2">
-                    <input
-                      type="number"
-                      step="any"
-                      min={0.1}
-                      value={item.quantity}
-                      onChange={(e) => handleItemChange(index, 'quantity', Number(e.target.value))}
-                      placeholder="Qtd"
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#141414] border border-white/10 text-xs text-white focus:outline-none focus:border-[#F27D26]"
-                    />
-                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-24">
+                      <input
+                        type="number"
+                        step="any"
+                        min={0.01}
+                        value={item.quantity}
+                        onChange={(e) => handleItemChange(index, 'quantity', Number(e.target.value))}
+                        placeholder="Qtd"
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-[#141414] border border-white/10 text-white font-mono"
+                      />
+                    </div>
 
-                  <div className="sm:col-span-2">
-                    <input
-                      type="number"
-                      step="any"
-                      min={0.01}
-                      value={item.unitCost}
-                      onChange={(e) => handleItemChange(index, 'unitCost', Number(e.target.value))}
-                      placeholder="R$/unidade"
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#141414] border border-white/10 text-xs text-white focus:outline-none focus:border-[#F27D26]"
-                    />
-                  </div>
+                    <div className="w-28">
+                      <input
+                        type="number"
+                        step="any"
+                        min={0.01}
+                        value={item.unitCost}
+                        onChange={(e) => handleItemChange(index, 'unitCost', Number(e.target.value))}
+                        placeholder="R$ Unit"
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-[#141414] border border-white/10 text-white font-mono"
+                      />
+                    </div>
 
-                  <div className="sm:col-span-2 text-right font-mono font-bold text-[#F27D26]">
-                    {formatBRL(item.totalCost)}
-                  </div>
+                    <span className="font-mono font-bold text-green-400 w-24 text-right">
+                      {formatBRL(item.totalCost)}
+                    </span>
 
-                  <div className="sm:col-span-1 text-right">
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveItem(index)}
-                      className="text-gray-500 hover:text-red-400 p-1 transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {items.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveItem(index)}
+                        className="text-gray-500 hover:text-red-400 p-1"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Footer Total & Submit */}
-          <div className="p-4 rounded-xl bg-[#0A0A0A] border border-white/10 flex items-center justify-between">
-            <span className="text-xs text-gray-400 uppercase font-bold">Total da Compra</span>
-            <span className="text-xl font-black text-green-400 font-mono">
-              {formatBRL(totalValue)}
-            </span>
+          <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+            <span className="text-xs text-gray-300 font-bold">Total da Compra:</span>
+            <span className="text-base font-black text-green-400 font-mono">{formatBRL(totalValue)}</span>
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-2.5 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-semibold text-xs transition-colors"
+              className="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-semibold"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-lg bg-[#F27D26] hover:bg-[#F27D26]/90 text-black font-bold text-xs shadow-md transition-colors"
+              className="flex-1 py-2.5 rounded-lg bg-[#F27D26] hover:bg-[#F27D26]/90 text-black font-bold shadow-md"
             >
-              Confirmar Entrada e Abastecer Estoque
+              Confirmar & Dar Entrada
             </button>
           </div>
         </form>
-      </div>
-    </div>
-  );
-};
-
-// Modal for viewing purchase details
-const PurchaseDetailsModal: React.FC<{
-  purchase: Purchase;
-  onClose: () => void;
-}> = ({ purchase, onClose }) => {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-[#141414] border border-white/10 rounded-2xl p-6 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-white/10">
-          <div>
-            <h3 className="text-lg font-bold text-white font-['Outfit']">Detalhes da Compra</h3>
-            <p className="text-xs text-gray-400">{purchase.supplier}</p>
-          </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1">
-            ✕
-          </button>
-        </div>
-
-        <div className="space-y-3 text-xs">
-          <div className="flex justify-between text-gray-400">
-            <span>Data de Emissão:</span>
-            <span className="text-white font-mono">{new Date(purchase.date).toLocaleDateString('pt-BR')}</span>
-          </div>
-          <div className="flex justify-between text-gray-400">
-            <span>Nota Fiscal:</span>
-            <span className="text-[#F27D26] font-mono">{purchase.invoiceNumber || 'Não informada'}</span>
-          </div>
-
-          <div className="pt-2 border-t border-white/10">
-            <h4 className="font-bold text-white mb-2">Itens da Nota</h4>
-            <div className="divide-y divide-white/5 bg-[#0A0A0A] p-3 rounded-xl border border-white/10 space-y-2">
-              {purchase.items.map((it, idx) => (
-                <div key={idx} className="pt-2 first:pt-0 flex justify-between items-center">
-                  <div>
-                    <span className="font-bold text-white">{it.ingredientName}</span>
-                    <p className="text-[11px] text-gray-400 font-mono">
-                      {it.quantity} {it.unit} x {formatBRL(it.unitCost)}
-                    </p>
-                  </div>
-                  <span className="font-mono font-bold text-[#F27D26]">{formatBRL(it.totalCost)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="pt-3 border-t border-white/10 flex justify-between text-sm font-bold text-white">
-            <span>Total Faturado:</span>
-            <span className="font-mono text-green-400 text-base">{formatBRL(purchase.totalValue)}</span>
-          </div>
-        </div>
-
-        <button
-          onClick={onClose}
-          className="w-full py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 font-semibold text-xs transition-colors"
-        >
-          Fechar
-        </button>
       </div>
     </div>
   );

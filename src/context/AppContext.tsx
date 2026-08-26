@@ -66,6 +66,8 @@ interface AppContextType {
   cart: OrderItem[];
   cartOpen: boolean;
   setCartOpen: (open: boolean) => void;
+  mobileMenuOpen: boolean;
+  setMobileMenuOpen: (open: boolean) => void;
   selectedProductForCustomization: Product | null;
   setSelectedProductForCustomization: (product: Product | null) => void;
   activeOrderTracker: Order | null;
@@ -163,6 +165,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedProductForCustomization, setSelectedProductForCustomization] = useState<Product | null>(null);
   const [activeOrderTracker, setActiveOrderTracker] = useState<Order | null>(null);
   const [toast, setToast] = useState<ToastInfo | null>(null);
@@ -569,6 +572,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         cart,
         cartOpen,
         setCartOpen,
+        mobileMenuOpen,
+        setMobileMenuOpen,
         selectedProductForCustomization,
         setSelectedProductForCustomization,
         activeOrderTracker,
