@@ -1,0 +1,6 @@
+{
+  "name": "BurgerOps - Gestão & Cardápio de Hamburgueria",
+  "description": "Sistema completo de gestão para hamburgueria: cardápio digital do cliente, pedidos, controle de estoque com baixa automática, ficha técnica de produtos, custos, precificação inteligente, rendimento e relatórios de lucro.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
